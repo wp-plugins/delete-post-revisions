@@ -1,5 +1,5 @@
 === Delete Post Revisions ===
-Contributors: donal-macarthur
+Contributors: donalmacarthur
 Donate link: http://donalmacarthur.com/
 Tags: post revisions, delete revisions
 Requires at least: 3.0
