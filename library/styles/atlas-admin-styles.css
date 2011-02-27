@@ -1,0 +1,185 @@
+/**
+ * Atlas Admin Styles
+ *
+ * This file contains admin page CSS styles common to all Atlas themes and plugins.
+ * The file forms part of the core Atlas framework and is also bundled with each
+ * individual plugin. If a plugin detects that it is running on an Atlas theme, this file
+ * will not be loaded and the framework version will be used instead. 
+ *
+ * Atlas themes load this file on all admin pages. Atlas plugins not running on an Atlas theme
+ * load the file only on their own specific settings pages.
+ *
+ * Version 1.0
+ */
+
+/* ==================== Global Styles For Theme Admin & Plugin Settings Pages ==================== */
+
+/* Atlas Icon */
+
+.atlas #icon-atlas { 
+	background: url(../images/atlas-icon-32.png) no-repeat; 
+	}
+
+/* Styles Applying To All Atlas Postboxes */
+
+.atlas-postbox td {
+	vertical-align: top;
+	}
+.atlas-postbox input.text {
+	margin-bottom: 5px;
+	}
+
+/* Styles Applying To Atlas Postboxes On Theme & Plugin Settings Pages */
+
+.atlas .postbox .inside {
+	margin: 6px 6px 8px;
+	}
+.atlas .atlas-postbox td.title {
+	width: 175px;
+	}
+.atlas .fixedbox h3 {
+	cursor: default;
+	}
+
+/* Typography */
+
+.atlas input.text, .atlas textarea {
+	font-size: 11px;
+	}
+.atlas .code-box {
+	font-family: monospace;
+	}
+.atlas-postbox ul {
+	font-size: 11px;
+	list-style: disc;
+	margin-left: 1.5em;
+	}
+	
+/* Form Elements */
+
+.atlas-postbox label {
+	margin-left: 8px;
+	}
+.atlas-postbox input.text.full{
+	width: 98%;
+	}
+.atlas-postbox input.text.long {
+	width: 400px;
+	}
+.atlas-postbox input.text.short {
+	width: 150px;
+	}
+.atlas-postbox textarea {
+	width: 98%;
+	}
+.atlas-postbox textarea.short {
+	height: 75px;
+	}
+.atlas-postbox textarea.tall {
+	height: 150px;
+	}
+.atlas-postbox select.long {
+	width: 275px;
+	}
+.atlas-postbox select.short {
+	width: 150px;
+	}
+
+/* Tab Links */
+
+.atlas .tab-links {
+	margin: 15px 0 5px 0;
+	}
+.atlas .tab-links li {
+	float: left;
+	margin-right: 10px;
+	}
+.atlas .tab-links li a, .atlas .tab-links li a:visited {
+	display: block;
+	padding: 10px;
+	background: #fdfdfd;
+	border: 1px solid #ccc; 
+	text-decoration: none;
+	border-radius: 10px;
+		-moz-border-radius: 10px;
+	}
+.atlas .tab-links li a:hover {
+	background: #e9e9e9;
+	color: #217598;
+	}
+.atlas .tab-links li.ui-tabs-selected a {
+	background: #f1f1f1;
+	}
+
+/* Buttons */
+
+.atlas p.submit.minor {
+	text-align: right;
+	margin: 0 20px 20px 0;
+	padding: 0;
+	}
+.atlas p.submit.major {
+	margin: 0 0 20px 0;
+	padding: 0;
+	}
+
+/* Miscellaneous */
+
+.atlas span.indent {
+	margin-left: 20px;
+	}
+
+/* Utility Styles */
+
+.atlas .clearfix:after {
+	content: ".";
+	display: block;
+	height: 0;
+	clear: both;
+	visibility: hidden;
+	}
+
+	
+/* ==================== Atlas Framework Options Page ==================== */
+
+.atlas .theme-info .submit {
+	display: none;
+	}
+
+
+/* ==================== Atlas Post Meta Settings Box ==================== */
+
+.atlas-post-meta-box td.title {
+	width: 125px;
+	}
+
+
+/* ==================== Atlas Featured Content Gallery Settings Page ==================== */
+
+table.atlas-gallery {
+	margin-bottom: 20px;
+	}
+table.atlas-gallery th.thumbnail {
+	width: 200px;
+	}
+table.atlas-gallery th.slide-button  {
+	width: 125px;
+	}
+table.atlas-gallery td, table.atlas-gallery th {
+	vertical-align: middle;
+	text-align: center;
+	}
+table.atlas-gallery-slide {
+	width: 100% ;
+	}
+table.atlas-gallery-slide td {
+	border: none;
+	vertical-align: top;
+	text-align: left;
+	}
+table.atlas-gallery-slide input, table.atlas-gallery-slide textarea {
+	width: 100%;
+	}
+table.atlas-gallery-slide textarea {
+	height: 75px;
+	}
