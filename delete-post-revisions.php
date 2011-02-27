@@ -3,7 +3,7 @@
  * Plugin Name: Delete Post Revisions
  * Plugin URI: http://www.cranesandskyhooks.com/wordpress/plugins/delete-post-revisions/
  * Description: A simple plugin for deleting unwanted post revisions from your database.
- * Version: 1.1
+ * Version: 1.2
  * Author: Donal MacArthur
  * Author URI: http://donalmacarthur.com/
  * Licence: GPL2
@@ -22,7 +22,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * @package Delete_Post_Revisions
- * @version 1.1
+ * @version 1.2
  * @author Donal MacArthur
  * @copyright Copyright (c) 2010, Cranes & Skyhooks
  * @link http://www.cranesandskyhooks.com/wordpress/plugins/delete-post-revisions/

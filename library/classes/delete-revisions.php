@@ -8,7 +8,7 @@
  * plugin.
  *
  * @package Delete_Post_Revisions
- * @version 1.0
+ * @version 1.2
  * @author Donal MacArthur
  * @copyright Copyright (c) 2010, Cranes & Skyhooks
  * @link http://www.cranesandskyhooks.com/
@@ -183,7 +183,7 @@ class Delete_Post_Revisions {
 						do_meta_boxes( $this->pagehook, 'normal', $data );
 						
 						/* If the delete button has been clicked, call the delete revisions function. */
-						if ( isset( $_POST['delete_revisions'] ) && $_POST['delete_revisions'] == true )
+						if ( isset( $_POST['dpr_delete_revisions'] ) && $_POST['dpr_delete_revisions'] == true )
 							$this->delete_revisions();
 						
 					echo "</div>\n";
@@ -204,18 +204,19 @@ class Delete_Post_Revisions {
 	
 		/* Wrap the postbox content in an .atlas-postbox div for styling purposes. */
 		echo "<div class='atlas-postbox'>\n";
-		
-			/* Get the postbox content. */
-			$content = $this->get_content();
-			
-			/* Print the postbox content. */
-			$this->tools->build_option_table( '', $content );
-			
-			/* Print a form with a 'delete' button. */ 
 			echo "<form method='post' action=''>\n";
+		
+				/* Get the postbox content. */
+				$content = $this->get_content();
+				
+				/* Print the postbox content. */
+				$this->tools->build_option_table( '', $content );
+			
+				/* Print a 'delete' button. */ 
 				echo "<p style='margin: 10px 10px 20px; padding: 0;'><input type='submit' class='button' value='Delete Post Revisions' /></p>\n";
-				echo "<input type='hidden' name='delete_revisions' value='true' />\n";
+				echo "<input type='hidden' name='dpr_delete_revisions' value='true' />\n";
 				wp_nonce_field( 'delete-revisions', 'nonce-delete-revisions' );
+				
 			echo "</form>\n";
 			
 		echo "</div>\n";
@@ -237,58 +238,96 @@ class Delete_Post_Revisions {
 		/* Check the form nonce. */
 		check_admin_referer( 'delete-revisions', 'nonce-delete-revisions' );
 		
-		/* Get an array containing all the existing post revisions. */
-		$args = array( 'post_type' => 'revision', 'post_status' => 'any', 'numberposts' => -1 );
-		$posts = get_posts( $args );
-		$count = 0;
+		/* Are we showing details? */
+		$showDetails = isset( $_POST['dpr_show_details'] ) && $_POST['dpr_show_details'] == true ? true : false;
+		
+		/* Set up variables for our loop. */
+		$details = array();
+		$deleted = 0;
+		
+		/* Delete revisions from the database in blocks of 100. */
+		do {
+			$args = array( 
+				'post_type'   => 'revision',
+				'post_status' => 'any',
+				'numberposts' => 100
+			);
+			$revisions = get_posts( $args );
+			
+			foreach ( $revisions as $revision ) {
+				if ( $showDetails ) {
+					$details[] = array(
+						'id'    => $revision->ID,
+						'title' => $revision->post_title,
+						'date'  => $revision->post_modified
+					);
+				}
+				wp_delete_post( $revision->ID, true );
+				$deleted++;
+			}
+			$more = count( $revisions ) == 100 ? true : false;
+		
+		} while ( $more );
 		
 		/* If no revisions were found. */
-		if ( count( $posts ) == 0 ) {
-		
+		if ( $deleted == 0 ) {
 			$content = "<table class='form-table'><tr><td><em>No revisions were found. Nothing has been deleted from the database.</em></td></tr></table>";
 			$this->tools->build_postbox( '', 'Results', $content );
 		}
 		
-		/* Else, revisions were found, so delete them. */
+		/* Else, revisions have been deleted. Tell the user how many. */
 		else {
 		
-			$content = "<table class='form-table'><tr><td>The following post revisions have been deleted from the database:</td></tr></table>";
-			$this->tools->build_postbox( '', 'Results', $content );
-			
-			/* Build a table to list the deleted revisions. */
-			echo "<table class='widefat' style='margin-bottom: 20px;' cellspacing='0'>\n";
-			
-				echo "<thead>";
-					echo "<tr>";
-						echo "<th>No.</th>";
-						echo "<th>ID</th>";
-						echo "<th>Title</th>";
-						echo "<th>Date Saved</th>";
-					echo "</tr>";
-				echo "</thead>";
+			if ( $deleted == 1 ) 
+				$text = '1 post revision has been deleted from the database.';
+			else
+				$text = $deleted . ' post revisions have been deleted from the database.';
 				
-				echo "<tfoot>";
-					echo "<tr>";
-						echo "<th>No.</th>";
-						echo "<th>ID</th>";
-						echo "<th>Title</th>";
-						echo "<th>Date Saved</th>";
-					echo "</tr>";
-				echo "</tfoot>";
+			if ( $deleted > 10000 )
+				$text .= ' Phewww!';
+				
+			if ( $showDetails )
+				$text .= ' Details displayed below:';
+		
+			$content = "<table class='form-table'><tr><td>{$text}</td></tr></table>";
+			$this->tools->build_postbox( '', 'Results', $content );
+		
+			/* If we're showing details, build a table to display them. */
+			if ( $showDetails ) {
 			
-				/* Loop through the array of revisions. For each post, print the post info, then delete it. */
-				foreach ( $posts as $post ) {
-					$count++;
-					$style = $count % 2 == 0 ? '': " style='background: #F9F9F9;'"; 
-					echo "<tr{$style}>\n";
-						echo '<td>' . $count . ".</td>\n";
-						echo '<td>' . $post->ID . "</td>\n";
-						echo '<td>' . $post->post_title . "</td>\n";
-						echo '<td>' . $post->post_modified . "</td>\n";
-					echo "</tr>\n";
-					wp_delete_post( $post->ID, true );
-				}
-			echo "</table>\n";
+				echo "<table class='widefat' style='margin-bottom: 20px;' cellspacing='0'>\n";
+				
+					echo "<thead>";
+						echo "<tr>";
+							echo "<th>No.</th>";
+							echo "<th>ID</th>";
+							echo "<th>Title</th>";
+							echo "<th>Date Saved</th>";
+						echo "</tr>";
+					echo "</thead>";
+					
+					echo "<tfoot>";
+						echo "<tr>";
+							echo "<th>No.</th>";
+							echo "<th>ID</th>";
+							echo "<th>Title</th>";
+							echo "<th>Date Saved</th>";
+						echo "</tr>";
+					echo "</tfoot>";
+				
+					$count = 0;
+					foreach ( $details as $revision ) {
+						$count++;
+						$style = $count % 2 == 0 ? '': " style='background: #F9F9F9;'"; 
+						echo "<tr{$style}>\n";
+							echo '<td>' . $count . ".</td>\n";
+							echo '<td>' . $revision['id'] . "</td>\n";
+							echo '<td>' . $revision['title'] . "</td>\n";
+							echo '<td>' . $revision['date'] . "</td>\n";
+						echo "</tr>\n";
+					}
+				echo "</table>\n";
+			}
 		}
 	}
 	
@@ -316,7 +355,15 @@ class Delete_Post_Revisions {
 		
 			array(
 				'type' => 'info',
-				'content' => "To begin the deletion process, simply click the button below:" )
+				'content' => "To begin the deletion process, simply click the button below. (Note: the process may take some time on large sites.)" ),
+				
+			array(
+				'type' => 'checkbox',
+				'title' => '',
+				'id' => 'dpr_show_details',
+				'desc' => '',
+				'std' => 0,
+				'label' => 'Check to show details - not recommended if your revisions number in the thousands.' ),
 		);
 		
 		return $content;
@@ -361,7 +408,7 @@ class Delete_Post_Revisions {
 					<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
 					<input type="hidden" name="cmd" value="_s-xclick">
 					<input type="hidden" name="hosted_button_id" value="HHSJFSHRKRKQS">
-					<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+					<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" style="max-width: 100%;">
 					<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
 					</form>
 <?php

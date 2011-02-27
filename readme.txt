@@ -1,10 +1,10 @@
 === Delete Post Revisions ===
 Contributors: donalmacarthur
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HHSJFSHRKRKQS
-Tags: post revisions, delete revisions
+Tags: revisions, post revisions, delete revisions, delete post revisions
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: 1.1
+Stable tag: 1.2
 
 A simple plugin for deleting unwanted post revisions from your database.
 
@@ -17,7 +17,7 @@ You should only need to run this plugin once, then you can deactivate and delete
 == Installation ==
 
 1. Install the plugin in the usual way - preferably through the WordPress automatic plugin installer.
-1. Activate the plugin through the 'Plugins' menu in WordPress.
+1. Activate the plugin from the 'Plugins' menu on your dashboard.
 1. Navigate to `Tools > Delete Revisions` and click the delete button.
 1. You're all done. You can deactivate and delete the plugin.
 
@@ -28,11 +28,13 @@ You should only need to run this plugin once, then you can deactivate and delete
 3. Leaves your database lean, mean, and revision-free
 
 == Changelog ==
-
+= 1.2 =
+* Earlier versions of the plugin ran into memory issues and failed if the user attempted to delete a particularly large number (tens or hundreds of thousands) of revisions. This update implements a more robust deletion routine that can handle indefinitely large numbers of revisions.
+* 'Show details' is now an optional extra. Turns out showing details by default isn't such a great idea when you're deleting 40,000 revisions...
 = 1.1 =
 * Improved interface.
 = 1.0 =
-* Initial Release.
+* Initial release.
 
 
 
