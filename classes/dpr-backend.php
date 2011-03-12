@@ -1,6 +1,6 @@
 <?php 
 /**
- * Delete Post Revisions
+ * Delete Post Revisions Backend Class
  * 
  * This class handles all the backend functionality for the plugin. It sets up
  * the plugin's page on the WordPress dashboard, handles the post deletion 
@@ -8,10 +8,10 @@
  * plugin.
  *
  * @package Delete_Post_Revisions
- * @version 1.2
+ * @version 1.3
  * @author Donal MacArthur
- * @copyright Copyright (c) 2010, Cranes & Skyhooks
- * @link http://www.cranesandskyhooks.com/
+ * @copyright Copyright (c) 2011, Cranes & Skyhooks
+ * @link http://cranesandskyhooks.com/wordpress-plugins/delete-post-revisions/
  */
 class Delete_Post_Revisions {
 
@@ -24,12 +24,12 @@ class Delete_Post_Revisions {
 	var $pagehook;
 	
 	/**
-	 * Stores a reference to an instance of the Atlas_Admin_Tools class.
+	 * Stores a reference to an instance of the DMAC_Admin_Tools class.
 	 *
 	 * @var string
-	 * @since 1.0
+	 * @since 1.3
 	 */
-	var $tools;
+	var $admin_tools;
 	
 	/**
 	 * PHP4 constructor method. This provides backwards compatibility for users with setups
@@ -93,12 +93,11 @@ class Delete_Post_Revisions {
 	 */
 	function on_load_page() {
 	
-		/* Instantiate the Atlas Admin Tools class. */
-		$this->tools = new Atlas_Admin_Tools();
+		/* Instantiate the DMAC Admin Tools class. */
+		$this->admin_tools = new DMAC_Admin_Tools_1_0_00();
 		
-		/* If we're not running on Atlas, load the bundled Atlas admin stylesheet. */
-		if ( !class_exists( 'Atlas' ) )
-			wp_enqueue_style( 'atlas-admin-styles', DPR_URL . 'library/styles/atlas-admin-styles.css' );
+		/* Load the bundled DMAC admin stylesheet. */
+		wp_enqueue_style( 'dmac-admin-styles', trailingslashit( DPR_URL ) . 'styles/dmac-admin-styles.css' );
 
 		/* Load the postbox scripts. */ 
 		wp_enqueue_script('common');
@@ -112,9 +111,9 @@ class Delete_Post_Revisions {
 		add_meta_box( 'delete-post-revisions', 'Instructions', array( &$this, 'delete_revisions_content' ), $this->pagehook, 'normal' );
 		
 		/* Register the page's side metaboxes. */
-		add_meta_box( 'atlas-sidebox-like', 'Like This Plugin?', array( &$this, 'like_box_content' ), $this->pagehook, 'side' );
-		add_meta_box( 'atlas-sidebox-donate', 'Make A Donation', array( &$this, 'donate_box_content' ), $this->pagehook, 'side' );
-		add_meta_box( 'atlas-sidebox-support', 'Need Support?', array( &$this, 'support_box_content' ), $this->pagehook, 'side' );
+		add_meta_box( 'dmac-sidebox-like', 'Like This Plugin?', array( &$this, 'like_box_content' ), $this->pagehook, 'side' );
+		add_meta_box( 'dmac-sidebox-donate', 'Make A Donation!', array( &$this, 'donate_box_content' ), $this->pagehook, 'side' );
+		add_meta_box( 'dmac-sidebox-support', 'Need Support?', array( &$this, 'support_box_content' ), $this->pagehook, 'side' );
 	}
 	
 	/**
@@ -156,10 +155,10 @@ class Delete_Post_Revisions {
 		$data['wp-repo-link']  = 'http://wordpress.org/extend/plugins/delete-post-revisions/';
 		$data['wp-forum-link'] = 'http://wordpress.org/tags/delete-post-revisions';
 		$data['donate-link']   = 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=HHSJFSHRKRKQS';
-		$data['homepage-link'] = 'http://www.cranesandskyhooks.com/wordpress/plugins/delete-post-revisions/';
+		$data['homepage-link'] = 'http://cranesandskyhooks.com/wordpress-plugins/delete-post-revisions/';
 	
 		/* Print the page header. */
-		echo "<div class='wrap atlas delete-revisions'>\n";
+		echo "<div class='wrap dmac delete-revisions'>\n";
 			screen_icon();
 			echo "<h2>Delete Post Revisions</h2>\n";
 			
@@ -183,7 +182,7 @@ class Delete_Post_Revisions {
 						do_meta_boxes( $this->pagehook, 'normal', $data );
 						
 						/* If the delete button has been clicked, call the delete revisions function. */
-						if ( isset( $_POST['dpr_delete_revisions'] ) && $_POST['dpr_delete_revisions'] == true )
+						if ( isset( $_POST['dmac_delete_revisions'] ) && $_POST['dmac_delete_revisions'] )
 							$this->delete_revisions();
 						
 					echo "</div>\n";
@@ -202,23 +201,22 @@ class Delete_Post_Revisions {
 	 */	
 	function delete_revisions_content() {
 	
-		/* Wrap the postbox content in an .atlas-postbox div for styling purposes. */
-		echo "<div class='atlas-postbox'>\n";
+		/* Wrap the postbox content in a .dmac-postbox div for styling purposes. */
+		echo "<div class='dmac-postbox'>\n";
 			echo "<form method='post' action=''>\n";
 		
 				/* Get the postbox content. */
 				$content = $this->get_content();
 				
 				/* Print the postbox content. */
-				$this->tools->build_option_table( '', $content );
+				$this->admin_tools->build_option_table( '', $content );
 			
 				/* Print a 'delete' button. */ 
 				echo "<p style='margin: 10px 10px 20px; padding: 0;'><input type='submit' class='button' value='Delete Post Revisions' /></p>\n";
-				echo "<input type='hidden' name='dpr_delete_revisions' value='true' />\n";
+				echo "<input type='hidden' name='dmac_delete_revisions' value='true' />\n";
 				wp_nonce_field( 'delete-revisions', 'nonce-delete-revisions' );
 				
 			echo "</form>\n";
-			
 		echo "</div>\n";
 	}
 	
@@ -239,7 +237,7 @@ class Delete_Post_Revisions {
 		check_admin_referer( 'delete-revisions', 'nonce-delete-revisions' );
 		
 		/* Are we showing details? */
-		$showDetails = isset( $_POST['dpr_show_details'] ) && $_POST['dpr_show_details'] == true ? true : false;
+		$showDetails = isset( $_POST['dmac_show_details'] ) && $_POST['dmac_show_details'] ? true : false;
 		
 		/* Set up variables for our loop. */
 		$details = array();
@@ -272,7 +270,7 @@ class Delete_Post_Revisions {
 		/* If no revisions were found. */
 		if ( $deleted == 0 ) {
 			$content = "<table class='form-table'><tr><td><em>No revisions were found. Nothing has been deleted from the database.</em></td></tr></table>";
-			$this->tools->build_postbox( '', 'Results', $content );
+			$this->admin_tools->build_postbox( '', 'Results', $content );
 		}
 		
 		/* Else, revisions have been deleted. Tell the user how many. */
@@ -290,7 +288,7 @@ class Delete_Post_Revisions {
 				$text .= ' Details displayed below:';
 		
 			$content = "<table class='form-table'><tr><td>{$text}</td></tr></table>";
-			$this->tools->build_postbox( '', 'Results', $content );
+			$this->admin_tools->build_postbox( '', 'Results', $content );
 		
 			/* If we're showing details, build a table to display them. */
 			if ( $showDetails ) {
@@ -351,7 +349,7 @@ class Delete_Post_Revisions {
 		
 			array(
 				'type' => 'info',
-				'content' => "You should only need to run this plugin once, then you can deactivate and delete it. Deleting your existing revisions won't prevent them from building up again in future, but you can disable the revision feature or limit the number of revisions WordPress saves to a number of your choice by setting WordPress's <code>WP_POST_REVISIONS</code> constant. You can find full instructions on how to do this on the <a href='http://www.cranesandskyhooks.com/wordpress/plugins/delete-post-revisions/'>plugin's homepage</a>." ),
+				'content' => "You should only need to run this plugin once, then you can deactivate and delete it. Deleting your existing revisions won't prevent them from building up again in future, but you can disable the revision feature or limit the number of revisions WordPress saves to a number of your choice by setting WordPress's <code>WP_POST_REVISIONS</code> constant. You can find full instructions on how to do this on the <a href='http://cranesandskyhooks.com/wordpress-plugins/delete-post-revisions/'>plugin's homepage</a>." ),
 		
 			array(
 				'type' => 'info',
@@ -360,7 +358,7 @@ class Delete_Post_Revisions {
 			array(
 				'type' => 'checkbox',
 				'title' => '',
-				'id' => 'dpr_show_details',
+				'id' => 'dmac_show_details',
 				'desc' => '',
 				'std' => 0,
 				'label' => 'Check to show details - not recommended if your revisions number in the thousands.' ),
@@ -370,69 +368,35 @@ class Delete_Post_Revisions {
 	}
 	
 	/**
-	 * Print the 'Like this plugin?' side box content.
+	 * Print the 'Like This Plugin?' side box content.
 	 * 
 	 * @since 1.0
 	 */		
 	function like_box_content( $data ) {
-	
-		/* Wrap the postbox content in an .atlas-postbox div for styling purposes. */
-		echo "<div class='atlas-postbox'>\n";
-
-			echo "<table class='form-table'>\n";
-				echo "<tr><td>If you like this plugin, why not do any or all of the following:</td></tr>\n";
-				echo "<tr><td><ul>\n";
-					echo "<li><a href='{$data['wp-repo-link']}'>Link to it so other people can find it.</a></li>\n";
-					echo "<li><a href='{$data['wp-repo-link']}'>Give it a 5-star rating on WordPress.</a></li>\n";
-					echo "<li><a href='{$data['donate-link']}'>Show your appreciation by making a donation.</a></li>\n";
-				echo "</ul></td></tr>\n";
-			echo "</table>\n";
-			
-		echo "</div>\n";
+		echo $this->admin_tools->like_box_content( $data );
 	}
 
 	/**
-	 * Print the 'Make a donation' side box content.
+	 * Print the 'Make A Donation' side box content.
 	 * 
 	 * @since 1.0
 	 */		
 	function donate_box_content() {
 	
-		/* Wrap the postbox content in an .atlas-postbox div for styling purposes. */
-		echo "<div class='atlas-postbox'>\n";
+		$form = '<form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input type="hidden" name="cmd" value="_s-xclick"><input type="hidden" name="hosted_button_id" value="HHSJFSHRKRKQS"><input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" style="max-width: 100%;"><img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1"></form>';
 
-			echo "<table class='form-table'>\n";
-				echo "<tr><td>Building and maintaining this plugin has cost me countless hours of work. If you like it, why not donate a token of your appreciation!</td></tr>\n";
-				echo "<tr><td style='text-align: center;'>";
-?>
-					<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
-					<input type="hidden" name="cmd" value="_s-xclick">
-					<input type="hidden" name="hosted_button_id" value="HHSJFSHRKRKQS">
-					<input type="image" src="https://www.paypal.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" style="max-width: 100%;">
-					<img alt="" border="0" src="https://www.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-					</form>
-<?php
-				echo "</td></tr>\n";
-			echo "</table>\n";
-			
-		echo "</div>\n";
+		echo $this->admin_tools->donate_box_content( $form );
 	}
 
 	/**
-	 * Print the 'Support' side box content.
+	 * Print the 'Need Support?' side box content.
 	 * 
 	 * @since 1.0
 	 */		
 	function support_box_content( $data ) {
 	
-		/* Wrap the postbox content in an .atlas-postbox div for styling purposes. */
-		echo "<div class='atlas-postbox'>\n";
-
-			echo "<table class='form-table'>\n";
-				echo "<tr><td>You can find full instructions on how to manage WordPress's post revision feature on the <a href='{$data['homepage-link']}'>plugin's homepage</a>.</td></tr>\n";
-				echo "<tr><td>If you have any problems with this plugin or ideas for new features or improvements please post about them on the <a href='{$data['wp-forum-link']}'>support forums</a>.</td></tr>\n";
-			echo "</table>\n";
-			
-		echo "</div>\n";
+		$content = array( "You can find full instructions on how to manage WordPress's post revision feature on the <a href='{$data['homepage-link']}'>plugin's homepage</a>.", "If you have any problems with this plugin or ideas for improvements or new features, please post about them on the WordPress <a href='{$data['wp-forum-link']}'>support forums</a>." );
+	
+		echo $this->admin_tools->side_box_content( $content );
 	}
 }

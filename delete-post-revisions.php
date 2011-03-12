@@ -1,9 +1,9 @@
 <?php
 /**
  * Plugin Name: Delete Post Revisions
- * Plugin URI: http://www.cranesandskyhooks.com/wordpress/plugins/delete-post-revisions/
+ * Plugin URI: http://cranesandskyhooks.com/wordpress-plugins/delete-post-revisions/
  * Description: A simple plugin for deleting unwanted post revisions from your database.
- * Version: 1.2
+ * Version: 1.3
  * Author: Donal MacArthur
  * Author URI: http://donalmacarthur.com/
  * Licence: GPL2
@@ -22,10 +22,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * @package Delete_Post_Revisions
- * @version 1.2
+ * @version 1.3
  * @author Donal MacArthur
- * @copyright Copyright (c) 2010, Cranes & Skyhooks
- * @link http://www.cranesandskyhooks.com/wordpress/plugins/delete-post-revisions/
+ * @copyright Copyright (c) 2011, Cranes & Skyhooks
+ * @link http://cranesandskyhooks.com/wordpress/plugins/delete-post-revisions/
  */
 
 /* If the file has been loaded directly, halt execution. */
@@ -44,12 +44,12 @@ if ( is_admin() )
 function initialize_delete_post_revisions() {
 
 	/* Load the Delete_Post_Revisions class. */
-	require_once( 'library/classes/delete-revisions.php' );
+	require_once( 'classes/dpr-backend.php' );
+
+	/* Load the DMAC_Admin_Tools() class. */
+	if ( !class_exists( 'DMAC_Admin_Tools_1_0_00' ) )
+		require_once( 'classes/dmac-admin-tools.php' );
 	
-	/* If this isn't an Atlas theme, load the Atlas_Admin_Tools class. */
-	if ( !class_exists( 'Atlas' ) )
-		require_once( 'library/classes/atlas-admin-tools.php' );
-		
 	/* Set plugin constants. */
 	define( 'DPR_URL', plugin_dir_url(__FILE__) );
 	define( 'DPR_PATH', plugin_dir_path(__FILE__) );
